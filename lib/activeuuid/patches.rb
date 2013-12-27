@@ -107,21 +107,15 @@ module ActiveUUID
     end
 
     def self.apply!
-      try_loading_and_include('ActiveRecord::ConnectionAdapters::Table', Migrations, 'active_record/connection_adapters/abstract/schema_definitions')
-      try_loading_and_include('ActiveRecord::ConnectionAdapters::TableDefinition', Migrations, 'active_record/connection_adapters/abstract/schema_definitions')
+      ActiveRecord::ConnectionAdapters::Table.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::Table
+      ActiveRecord::ConnectionAdapters::TableDefinition.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::TableDefinition
 
-      try_loading_and_include('ActiveRecord::ConnectionAdapters::Column', Column)
-      try_loading_and_include('ActiveRecord::ConnectionAdapters::PostgreSQLColumn', PostgreSQLColumn, 'active_record/connection_adapters/postgresql_adapter')
+      ActiveRecord::ConnectionAdapters::Column.send :include, Column
+      ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
 
-      try_loading_and_include('ActiveRecord::ConnectionAdapters::Mysql2Adapter', Quoting)
-      try_loading_and_include('ActiveRecord::ConnectionAdapters::SQLite3Adapter', Quoting, 'active_record/connection_adapters/sqlite3_adapter')
-      try_loading_and_include('ActiveRecord::ConnectionAdapters::PostgreSQLAdapter', PostgreSQLQuoting, 'active_record/connection_adapters/postgresql_adapter')
-    end
-
-    def self.try_loading_and_include(c, m, f=nil)
-      require(f ? f : c.underscore)
-      c.constantize.send :include, m
-    rescue NameError, Gem::LoadError
+      ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
+      ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
+      ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
     end
   end
 end
